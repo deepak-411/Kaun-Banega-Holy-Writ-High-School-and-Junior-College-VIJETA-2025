@@ -14,7 +14,7 @@ import { quizData, Question } from '@/lib/quiz-data';
 import { CLASS_LEVELS, GROUPS } from '@/lib/constants';
 import { useSpeechSynthesis } from '@/hooks/use-speech-synthesis';
 import { getAdjustedQuestion } from '@/app/actions';
-import { CheckCircle2, XCircle, Wand2, Loader2, Home, BarChart } from 'lucide-react';
+import { CheckCircle2, XCircle, Wand2, Loader2, Home, BarChart, PartyPopper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 type QuizClientProps = {
@@ -74,7 +74,7 @@ export function QuizClient({ classLevel, group }: QuizClientProps) {
     } else {
       setQuizFinished(true);
       const result = { classLevel, group, score, total: questions.length, date: new Date().toISOString() };
-      localStorage.setItem(`quizResult-${Date.now()}`, JSON.stringify(result));
+      localStorage.setItem(`quizResult-${classLevel}-${group}`, JSON.stringify(result));
     }
   };
 
@@ -119,12 +119,15 @@ export function QuizClient({ classLevel, group }: QuizClientProps) {
     return (
       <Card className="w-full max-w-2xl text-center animate-fade-in-up">
         <CardHeader>
-          <CardTitle className="text-3xl font-headline">Quiz Complete!</CardTitle>
+            <CardTitle className="text-3xl font-headline flex items-center justify-center gap-2">
+                <PartyPopper className="h-8 w-8 text-primary"/>
+                Quiz Complete!
+            </CardTitle>
           <CardDescription>{className} - {groupName}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-5xl font-bold text-primary">{score} / {questions.length}</p>
-          <p className="text-lg text-muted-foreground">You have successfully completed the quiz.</p>
+            <p className="text-lg text-muted-foreground">आपने सफलतापूर्वक क्विज़ पूरा कर लिया है।</p>
+            <p className="text-base">परिणाम जल्द ही घोषित किए जाएंगे।</p>
         </CardContent>
         <CardFooter className="flex justify-center gap-4">
           <Button onClick={() => router.push('/dashboard')}>

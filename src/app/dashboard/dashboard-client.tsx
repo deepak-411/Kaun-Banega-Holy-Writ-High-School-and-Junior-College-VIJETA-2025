@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
 import { CLASS_LEVELS, GROUPS } from '@/lib/constants';
-import { Rocket, Trophy, Users, BookOpen } from 'lucide-react';
+import { Rocket, Trophy, Users, BookOpen, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 type QuizResult = {
   classLevel: string;
@@ -24,6 +25,7 @@ export default function DashboardClient() {
   const [selectedGroup, setSelectedGroup] = useState('');
   const [results, setResults] = useState<QuizResult[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  const [quizTaken, setQuizTaken] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -45,6 +47,16 @@ export default function DashboardClient() {
       setResults(savedResults.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     }
   }, [router]);
+
+  useEffect(() => {
+    if (selectedClass && selectedGroup) {
+      const alreadyTaken = results.some(r => r.classLevel === selectedClass && r.group === selectedGroup);
+      setQuizTaken(alreadyTaken);
+    } else {
+      setQuizTaken(false);
+    }
+  }, [selectedClass, selectedGroup, results]);
+
 
   if (!isMounted) {
     return null; // or a loading spinner
@@ -96,9 +108,20 @@ export default function DashboardClient() {
               </SelectContent>
             </Select>
           </div>
+          {quizTaken && (
+            <div className="md:col-span-2">
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Quiz Already Taken</AlertTitle>
+                    <AlertDescription>
+                        This group has already completed the quiz for this class level.
+                    </AlertDescription>
+                </Alert>
+            </div>
+          )}
         </CardContent>
         <CardFooter>
-          <Button onClick={handleStartQuiz} disabled={!selectedClass || !selectedGroup} size="lg">
+          <Button onClick={handleStartQuiz} disabled={!selectedClass || !selectedGroup || quizTaken} size="lg">
             Start Quiz
           </Button>
         </CardFooter>
